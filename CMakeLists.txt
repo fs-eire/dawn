@@ -127,6 +127,8 @@ if (DAWN_SUPPORTS_GLFW_FOR_WINDOWING)
     set(BUILD_SAMPLES ON)
 endif()
 
+option(DAWN_ENABLE_VCPKG "Enable vcpkg integration" OFF)
+
 option(DAWN_ENABLE_ASAN "Enable address sanitizer" OFF)
 option(DAWN_ENABLE_INSTALL "Enable install step for Dawn libraries" OFF)
 option(DAWN_ENABLE_TSAN "Enable thread sanitizer" OFF)
@@ -439,16 +441,25 @@ set(TINT_SPIRV_TOOLS_DIR   ${DAWN_SPIRV_TOOLS_DIR})
 ################################################################################
 # Run on all subdirectories
 ################################################################################
-if (DAWN_BUILD_PROTOBUF AND EXISTS "${DAWN_PROTOBUF_DIR}/cmake")
-  if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") AND WIN32)
-    set(protobuf_HAVE_BUILTIN_ATOMICS 1)
+if (DAWN_ENABLE_VCPKG)
+  find_package(absl REQUIRED)
+  find_package(SPIRV-Headers REQUIRED)
+  find_package(SPIRV-Tools REQUIRED)
+  if (DAWN_USE_BUILT_DXC)
+    find_package(directx-dxc CONFIG REQUIRED)
+  endif()
+else()
+  if (DAWN_BUILD_PROTOBUF AND EXISTS "${DAWN_PROTOBUF_DIR}/cmake")
+    if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") AND WIN32)
+      set(protobuf_HAVE_BUILTIN_ATOMICS 1)
+    endif()
+
+    # Needs to come before SPIR-V Tools
+    include("third_party/protobuf.cmake")
   endif()
 
-  # Needs to come before SPIR-V Tools
-  include("third_party/protobuf.cmake")
+  add_subdirectory(third_party)
 endif()
-
-add_subdirectory(third_party)
 
 # TODO(crbug.com/tint/455): Tint does not currently build with CMake when
 # BUILD_SHARED_LIBS=1, so always build it as static for now.

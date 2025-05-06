@@ -214,13 +214,21 @@ function(tint_default_compile_options TARGET)
 endfunction()
 
 function(tint_spvheaders_compile_options TARGET)
-  target_link_libraries(${TARGET} PRIVATE SPIRV-Headers)
-  target_include_directories(${TARGET} PRIVATE "${TINT_SPIRV_HEADERS_DIR}/include")
+  if (DAWN_ENABLE_VCPKG)
+    target_link_libraries(${TARGET} PRIVATE SPIRV-Headers::SPIRV-Headers)
+  else ()
+    target_link_libraries(${TARGET} PRIVATE SPIRV-Headers)
+    target_include_directories(${TARGET} PRIVATE "${TINT_SPIRV_HEADERS_DIR}/include")
+  endif()
 endfunction()
 
 function(tint_spvtools_compile_options TARGET)
-  target_link_libraries(${TARGET} PRIVATE SPIRV-Tools)
-  target_include_directories(${TARGET} PRIVATE "${TINT_SPIRV_TOOLS_DIR}/include")
+  if (DAWN_ENABLE_VCPKG)
+    target_link_libraries(${TARGET} PRIVATE SPIRV-Tools-static)
+  else ()
+    target_link_libraries(${TARGET} PRIVATE SPIRV-Tools)
+    target_include_directories(${TARGET} PRIVATE "${TINT_SPIRV_TOOLS_DIR}/include")
+  endif()
 endfunction()
 
 function(tint_lib_compile_options TARGET)
@@ -562,12 +570,16 @@ function(tint_target_add_external_dependencies TARGET KIND)
       target_link_libraries(${TARGET} PRIVATE
         SPIRV-Tools-opt
       )
-      target_include_directories(${TARGET} PRIVATE
-        "${TINT_SPIRV_TOOLS_DIR}"
-        "${TINT_SPIRV_TOOLS_DIR}/include"
-        "${TINT_SPIRV_TOOLS_DIR}/source"
-        "${spirv-tools_BINARY_DIR}"
-      )
+      if (DAWN_ENABLE_VCPKG)
+        target_link_libraries(${TARGET} PRIVATE SPIRV-Tools-static)
+      else ()
+        target_include_directories(${TARGET} PRIVATE
+          "${TINT_SPIRV_TOOLS_DIR}"
+          "${TINT_SPIRV_TOOLS_DIR}/include"
+          "${TINT_SPIRV_TOOLS_DIR}/source"
+          "${spirv-tools_BINARY_DIR}"
+        )
+      endif()
     elseif(${DEPENDENCY} STREQUAL "thread")
       find_package(Threads REQUIRED)
       target_link_libraries(${TARGET} PRIVATE Threads::Threads)
