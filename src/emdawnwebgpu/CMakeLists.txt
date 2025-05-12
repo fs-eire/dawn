@@ -270,4 +270,10 @@ if (EMSCRIPTEN)
             "-sJSPI=1"
         )
     endif()
+
+    if (DAWN_ENABLE_INSTALL)
+        dawn_install_target(emdawnwebgpu_config)
+        dawn_install_target(emdawnwebgpu_c)
+        dawn_install_target(emdawnwebgpu_cpp)
+    endif()
 endif()

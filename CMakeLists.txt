@@ -443,10 +443,12 @@ set(TINT_SPIRV_TOOLS_DIR   ${DAWN_SPIRV_TOOLS_DIR})
 ################################################################################
 if (DAWN_ENABLE_VCPKG)
   find_package(absl REQUIRED)
-  find_package(SPIRV-Headers REQUIRED)
-  find_package(SPIRV-Tools REQUIRED)
-  if (DAWN_USE_BUILT_DXC)
-    find_package(directx-dxc CONFIG REQUIRED)
+  if (NOT EMSCRIPTEN)
+    find_package(SPIRV-Headers REQUIRED)
+    find_package(SPIRV-Tools REQUIRED)
+    if (DAWN_USE_BUILT_DXC)
+      find_package(directx-dxc CONFIG REQUIRED)
+    endif()
   endif()
 else()
   if (DAWN_BUILD_PROTOBUF AND EXISTS "${DAWN_PROTOBUF_DIR}/cmake")
@@ -511,7 +513,7 @@ if (DAWN_EMIT_COVERAGE)
     VERBATIM)
 endif()
 
-if (DAWN_BUILD_MONOLITHIC_LIBRARY AND DAWN_ENABLE_INSTALL)
+if ((DAWN_BUILD_MONOLITHIC_LIBRARY OR EMSCRIPTEN) AND DAWN_ENABLE_INSTALL)
   # This series of functions add the necessary information so that other CMake projects
   # can use Dawn, be it from a build directory, a local install or when packaged.
   install(EXPORT DawnTargets
