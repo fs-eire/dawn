@@ -748,6 +748,7 @@ struct WGPUBufferImpl final : public EventSource,
   WGPUBufferImpl(const EventSource* source, bool mappedAtCreation);
   // Injection constructor used when we already have a backing Buffer.
   WGPUBufferImpl(const EventSource* source, WGPUBufferMapState mapState);
+  ~WGPUBufferImpl();
 
   void Destroy();
   const void* GetConstMappedRange(size_t offset, size_t size);
@@ -1444,6 +1445,12 @@ WGPUBufferImpl::WGPUBufferImpl(const EventSource* source,
     : EventSource(source),
       RefCountedWithExternalCount(kImportedFromJS),
       mMapState(mapState) {}
+
+WGPUBufferImpl::~WGPUBufferImpl() {
+  if (!IsImported()) {
+    Destroy();
+  }
+}
 
 void WGPUBufferImpl::Destroy() {
   emwgpuBufferDestroy(this);
