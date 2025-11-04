@@ -343,8 +343,9 @@ void PhysicalDevice::InitializeSupportedFeaturesImpl() {
     if (mDeviceInfo.HasExt(DeviceExt::ShaderFloat16Int8) &&
         mDeviceInfo.HasExt(DeviceExt::_16BitStorage) &&
         mDeviceInfo.shaderFloat16Int8Features.shaderFloat16 == VK_TRUE &&
-        mDeviceInfo._16BitStorageFeatures.storageBuffer16BitAccess == VK_TRUE &&
-        mDeviceInfo._16BitStorageFeatures.uniformAndStorageBuffer16BitAccess == VK_TRUE) {
+        mDeviceInfo._16BitStorageFeatures.storageBuffer16BitAccess == VK_TRUE /*&&
+        WebGPU EP needs to ensure we don't put fp16 values in uniforms when this patch is applied.
+        mDeviceInfo._16BitStorageFeatures.uniformAndStorageBuffer16BitAccess == VK_TRUE*/) {
         // ONNX Runtime Patch: enable shaderF16 on all devices.
         EnableFeature(Feature::ShaderF16);
         shaderF16Enabled = true;
