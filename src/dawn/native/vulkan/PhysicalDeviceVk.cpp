@@ -345,11 +345,9 @@ void PhysicalDevice::InitializeSupportedFeaturesImpl() {
         mDeviceInfo.shaderFloat16Int8Features.shaderFloat16 == VK_TRUE &&
         mDeviceInfo._16BitStorageFeatures.storageBuffer16BitAccess == VK_TRUE &&
         mDeviceInfo._16BitStorageFeatures.uniformAndStorageBuffer16BitAccess == VK_TRUE) {
-        // TODO(crbug.com/tint/2164): Investigate crashes in f16 CTS tests to enable on NVIDIA.
-        if (!gpu_info::IsNvidia(GetVendorId())) {
-            EnableFeature(Feature::ShaderF16);
-            shaderF16Enabled = true;
-        }
+        // ONNX Runtime Patch: enable shaderF16 on all devices.
+        EnableFeature(Feature::ShaderF16);
+        shaderF16Enabled = true;
     }
 
     if (mDeviceInfo.HasExt(DeviceExt::DrawIndirectCount) &&
